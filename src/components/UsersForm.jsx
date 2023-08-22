@@ -12,6 +12,16 @@ const UsersForm = ({
   modalOn,
   setModalOn,
 }) => {
+
+  const capitalizeWords =(str) => {
+    const words = str.trim().split(/\s+/);
+    const capitalizedWords = words.map(word => {
+      const lowercaseWord = word.toLowerCase();
+      return lowercaseWord.charAt(0).toUpperCase() + lowercaseWord.slice(1);
+    });
+    return capitalizedWords.join(' ');
+  }
+
   const {
     handleSubmit,
     register,
@@ -22,8 +32,16 @@ const UsersForm = ({
     setrandomPicture(null);
     fetchRandomPicture();
     editMode
-      ? updateUser(data, reset, swal("Información Actualizada","", "success"))
-      : createUser(data, reset,  swal("Usuario creado","", "success") ,(data.image_url = randomPicture));
+      ? updateUser(data, reset, swal("Información Actualizada", "", "success"), 
+      (data.first_name = capitalizeWords(data.first_name),data.last_name = capitalizeWords(data.last_name))
+      
+      )
+      : createUser(
+          data,
+          reset,
+          swal("Usuario creado", "", "success"),
+          (data.image_url = randomPicture, data.first_name = capitalizeWords(data.first_name),data.last_name = capitalizeWords(data.last_name))
+        );
     handleModalExit(reset);
     setModalOn(!modalOn);
   };
@@ -107,57 +125,56 @@ const UsersForm = ({
         <h2 className="flex justify-center font-bold text-xl xl:text-2xl ">
           {editMode ? "Editar usuario" : "Nuevo usuario"}
         </h2>
-        <div className="grid">
-          <label htmlFor="first_name">Nombre: </label>
-          <input
-            className="pl-2 rounded-[0.2rem] outline-none border border-slate-400"
+        <div className="grid grid-cols-9">
+          <label htmlFor="first_name" ><i className='bx bxs-user text-xl'></i> </label>
+          <input placeholder="Nombre" 
+            className="pl-2 mr-1 placeholder:text-sm col-span-4 rounded-[0.2rem] outline-none border border-slate-400"
             id="first_name"
             {...register("first_name", {
-              required: { value: true, message: "Campo Requerido" },
+              required: { value: true, message: "Requerido" },
               maxLength: {
                 value: 25,
                 message: "Maximo 25 carácteres",
               },
               pattern: {
                 value:
-                  /^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]*(\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]*)*\s*$/,
-                message: "Inicia con mayúscula, revisa los espacios",
+                  /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]*$/,
+                message: "Utiliza solo letras",
               },
             })}
             type="text"
             autoComplete="name"
           />
+          
+
+          <input placeholder="Apellido" 
+            className="pl-2 col-span-4 placeholder:text-sm rounded-[0.2rem] outline-none border border-slate-400"
+            id="last_name"
+            {...register("last_name", {
+              required: { value: true, message: "Requerido" },
+              maxLength: {
+                value: 25,
+                message: "Maximo 25 carácteres",
+              },
+              pattern: {
+                value:
+                  /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]*$/,
+                message: "Utiliza solo letras",
+              },
+            })}
+            type="text"
+            autoComplete="family-name"
+          />
           {errors.first_name && (
-            <p className="text-red-600 text-xs xl:text-base">
+            <p className="text-red-600 col-start-2 col-span-4 text-xs xl:text-base">
               <i className="material-icons text-sm xl:text-base transform translate-y-[0.2rem]">
                 error
               </i>
               {errors.first_name.message}
             </p>
           )}
-        </div>
-        <div className="grid ">
-          <label htmlFor="last_name">Apellidos: </label>
-          <input
-            className="pl-2 rounded-[0.2rem] outline-none border border-slate-400"
-            id="last_name"
-            {...register("last_name", {
-              required: { value: true, message: "Campo Requerido" },
-              maxLength: {
-                value: 25,
-                message: "Maximo 25 carácteres",
-              },
-              pattern: {
-                value:
-                  /^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]*(\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]*)*\s*$/,
-                message: "Inicia con mayúscula, revisa los espacios",
-              },
-            })}
-            type="text"
-            autoComplete="name"
-          />
           {errors.last_name && (
-            <p className="text-red-600 text-xs xl:text-base">
+            <p className="text-red-600 col-start-6 col-span-4 text-xs xl:text-base">
               <i className="material-icons text-sm xl:text-base transform translate-y-[0.2rem]">
                 error
               </i>
@@ -165,10 +182,12 @@ const UsersForm = ({
             </p>
           )}
         </div>
-        <div className="grid">
-          <label htmlFor="email">Correo: </label>
-          <input
-            className="pl-2 rounded-[0.2rem] outline-none border border-slate-400"
+        <div className="grid grid-cols-9">
+          <label htmlFor="email">
+            <i className="bx bxs-envelope text-xl"></i>{" "}
+          </label>
+          <input placeholder="Correo" 
+            className="placeholder:text-sm pl-2 col-span-8 rounded-[0.2rem] outline-none border border-slate-400"
             id="email"
             {...register("email", {
               required: { value: true, message: "Campo Requerido" },
@@ -185,7 +204,7 @@ const UsersForm = ({
             autoComplete="email"
           />
           {errors.email && (
-            <p className="text-red-600 text-xs xl:text-base">
+            <p className="text-red-600 col-start-2 col-span-8 text-xs xl:text-base">
               <i className="material-icons text-sm xl:text-base transform translate-y-[0.2rem]">
                 error
               </i>
@@ -193,10 +212,12 @@ const UsersForm = ({
             </p>
           )}
         </div>
-        <div className="grid">
-          <label htmlFor="password">Contraseña: </label>
-          <input
-            className="pl-2 rounded-[0.2rem] outline-none border border-slate-400"
+        <div className="grid grid-cols-9">
+          <label htmlFor="password">
+            <i className="bx bxs-lock-alt text-xl"></i>{" "}
+          </label>
+          <input placeholder="Contraseña" 
+            className="placeholder:text-sm pl-2 col-span-8 rounded-[0.2rem] outline-none border border-slate-400"
             id="password"
             {...register("password", {
               required: { value: true, message: "Campo Requerido" },
@@ -211,10 +232,11 @@ const UsersForm = ({
                   "Número, carácter especial, minúscula y mayúscula requeridos.",
               },
             })}
-            type="text"
+            type="password"
+            
           />
           {errors.password && (
-            <p className="text-red-600 text-xs xl:text-base">
+            <p className="text-red-600 col-start-2 col-span-8 text-xs xl:text-base">
               <i className="material-icons text-sm xl:text-base transform translate-y-[0.2rem]">
                 error
               </i>
@@ -222,10 +244,12 @@ const UsersForm = ({
             </p>
           )}
         </div>
-        <div className="grid">
-          <label htmlFor="birthday">Cumpleaños: </label>
+        <div className="grid grid-cols-9">
+          <label htmlFor="birthday">
+            <i className="bx bxs-cake text-xl"></i>{" "}
+          </label>
           <input
-            className="pl-2 rounded-[0.2rem] outline-none border border-slate-400"
+            className="pl-2 col-span-8 rounded-[0.2rem] outline-none border border-slate-400"
             id="birthday"
             {...register("birthday", {
               required: {
@@ -236,7 +260,7 @@ const UsersForm = ({
             type="date"
           />
           {errors.birthday && (
-            <p className="text-red-600 text-xs xl:text-base">
+            <p className="text-red-600 col-start-2 col-span-8 text-xs xl:text-base">
               <i className="material-icons text-sm xl:text-base transform translate-y-[0.2rem]">
                 error
               </i>
